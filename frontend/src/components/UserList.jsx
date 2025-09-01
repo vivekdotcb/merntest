@@ -10,21 +10,38 @@ export default function UserList({ users, fetchUsers }) {
   return (
     <div className="mt-4">
       <h2 className="text-xl font-bold text-danger">User List</h2>
-      {/* <ul className="space-y-2">
-        {users.map(user => (
-          <li key={user._id} className="flex justify-between p-2 border rounded">
-            <span>{user.name} ({user.email}) - {user.age} yrs</span>
-            <button
-              className="bg-red-500 text-white px-2 py-1 rounded"
+      
+
+      <table className="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Age</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map(user => (
+            <tr>
+              <th scope="row">1</th>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
+              <td>{user.age} yrs</td>
+              <td><button className="bg-red-500 text-white px-2 py-1 rounded"
               onClick={() => deleteUser(user._id)}
             >
               Delete
-            </button>
-          </li>
-        ))}
-      </ul> */}
+            </button></td>
 
-      <div className='text-danger'>hii</div>
+            </tr>
+            ))}
+           
+          </tbody>
+        </table>
+
+      
     </div>
   );
 }

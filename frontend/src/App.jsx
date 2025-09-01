@@ -1,4 +1,5 @@
 import React from 'react' 
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect, useState } from "react";
 import { api } from "./api";
 import UserForm from "./components/UserForm";
