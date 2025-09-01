@@ -1,12 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { api } from "../api";
 
 const Users = () => {
-  // Default Users List
-  const [users, setUsers] = useState([
-    { id: 1, name: "Amit Sharma", email: "amit@example.com", role: "Admin" },
-    { id: 2, name: "Priya Singh", email: "priya@example.com", role: "Editor" },
-    { id: 3, name: "Ravi Kumar", email: "ravi@example.com", role: "User" },
-  ]);
+  const [users, setUsers] = useState([]);
 
   // New User Form Data
   const [formData, setFormData] = useState({
@@ -15,28 +11,41 @@ const Users = () => {
     role: "User",
   });
 
+  // Fetch Users from API
+  const fetchUsers = async () => {
+    try {
+      const res = await api.get("/users");
+      setUsers(res.data);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
   // Form Input Change Handler
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
   // Add User Function
-  const handleAddUser = (e) => {
+  const handleAddUser = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.email) {
       alert("Please fill all fields!");
       return;
     }
-    const newUser = {
-      id: users.length + 1,
-      ...formData,
-    };
-    setUsers([...users, newUser]);
-    setFormData({ name: "", email: "", role: "User" }); // Reset Form
+
+    try {
+      await api.post("/users", formData);
+      fetchUsers(); // refresh list
+      setFormData({ name: "", email: "", role: "User" });
+    } catch (err) {
+      console.error("Error adding user:", err);
+    }
   };
 
   return (
@@ -89,21 +98,43 @@ const Users = () => {
       <table className="w-full bg-white shadow-md rounded border">
         <thead className="bg-gray-200">
           <tr>
-            <th className="p-3 text-left">ID</th>
+            <th className="p-3 text-left">#</th>
             <th className="p-3 text-left">Name</th>
             <th className="p-3 text-left">Email</th>
             <th className="p-3 text-left">Role</th>
+            <th className="p-3 text-left">Action</th>
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
-            <tr key={user.id} className="border-t hover:bg-gray-100">
-              <td className="p-3">{user.id}</td>
-              <td className="p-3">{user.name}</td>
-              <td className="p-3">{user.email}</td>
-              <td className="p-3">{user.role}</td>
+          {users.length > 0 ? (
+            users.map((user, index) => (
+              <tr key={user._id} className="border-t hover:bg-gray-100">
+                <td className="p-3">{index + 1}</td>
+                <td className="p-3">{user.name}</td>
+                <td className="p-3">{user.email}</td>
+                <td className="p-3">{user.role}</td>
+                <td className="p-3">
+                  <button
+                    onClick={async () => {
+                      if (window.confirm("Delete this user?")) {
+                        await api.delete(`/users/${user._id}`);
+                        fetchUsers();
+                      }
+                    }}
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5" className="text-center p-3 text-gray-500">
+                No users found
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
